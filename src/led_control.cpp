@@ -44,7 +44,8 @@ void led_on()
     digitalWrite(LED_PIN, HIGH);
 }
 
-void check_battery_and_blink(bool is_avtive) {
+void check_battery_and_blink(bool is_avtive) 
+{
     static unsigned long last_check_time = 0;
     static unsigned long last_battery_blink = 0;
     static bool battery_blink_state = false;
