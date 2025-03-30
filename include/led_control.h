@@ -2,15 +2,7 @@
 #define LED_CONTROL_H
 
 #define LED_PIN 2
-#define RELAY_PIN 19
-#define BUTTON_PIN 5
-#define BATTERY_PIN 4
-#define BATTERY_THRESHOLD 6.0 // battery 6v
-
-void setup_pins();
-void relay_control(int delay_time);
-void led_blink();
-void check_battery_and_blink();
+l
 void led_on();
 
 #endif
