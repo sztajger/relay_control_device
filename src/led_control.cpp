@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include "led_control.h"
+#include <driver/rtc_io.h>
 
 static unsigned long last_relay_time = 0;
 const float battery_voltage = 5.5; //hardcode battery voltage, esp32 its bad at reading real battery 
@@ -9,10 +10,14 @@ static bool low_battery = false; // state flag
 void setup_pins()
 {
     pinMode(LED_PIN, OUTPUT);
-    digitalWrite(LED_PIN, LOW);
     pinMode(BUTTON_PIN, INPUT_PULLUP);
     pinMode(RELAY_PIN, OUTPUT);
-    digitalWrite(RELAY_PIN, LOW);
+    digitalWrite(LED_PIN, LOW);
+    digitalWrite(RELAY_PIN, HIGH); // THIS WILL MAKE DIVICE OFF WHEN ESP IS IN SLEEP MODE
+    //configuration gpio pins for rtc sleep mode
+    rtc_gpio_init((gpio_num_t)RELAY_PIN);
+    rtc_gpio_set_direction((gpio_num_t)RELAY_PIN, RTC_GPIO_MODE_OUTPUT_ONLY);
+    rtc_gpio_set_level((gpio_num_t)RELAY_PIN, 1);
 }
 
 void relay_control(int delay_time) {
@@ -39,7 +44,7 @@ void led_on()
     digitalWrite(LED_PIN, HIGH);
 }
 
-void check_battery_and_blink() {
+void check_battery_and_blink(bool is_avtive) {
     static unsigned long last_check_time = 0;
     static unsigned long last_battery_blink = 0;
     static bool battery_blink_state = false;
@@ -50,9 +55,6 @@ void check_battery_and_blink() {
     {
         if (battery_voltage < BATTERY_THRESHOLD) 
         {
-            Serial.print("Low Battery: ");
-            Serial.print(battery_voltage);
-            Serial.println("V");
             low_battery = true; // set flag
         } 
         else 
@@ -63,7 +65,7 @@ void check_battery_and_blink() {
     }
 
     // blink led 100ms, if battery <6V
-    if (low_battery && current_time - last_battery_blink >= 100) 
+    if (is_avtive && low_battery && current_time - last_battery_blink >= 100) 
     {
         battery_blink_state = !battery_blink_state;
         digitalWrite(LED_PIN, battery_blink_state);
@@ -71,16 +73,3 @@ void check_battery_and_blink() {
     }
 }
 
-void show_battery_status() // 
-{
-    static unsigned long last_status_time = 0;
-    unsigned long current_time = millis();
-
-    if (current_time - last_status_time >= 5000) 
-    {
-        Serial.print("Battery: ");
-        Serial.print(battery_voltage);
-        Serial.println("V");
-        last_status_time = current_time;
-    }
-}
