@@ -2,10 +2,7 @@
 #include "led_control.h"
 #include <driver/rtc_io.h>
 
-static unsigned long last_relay_time = 0;
-const float battery_voltage = 5.5; //hardcode battery voltage, esp32 its bad at reading real battery 
-static bool relay_state = false;
-static bool low_battery = false; // state flag
+
 
 void setup_pins()
 {
@@ -44,8 +41,7 @@ void led_on()
     digitalWrite(LED_PIN, HIGH);
 }
 
-void check_battery_and_blink(bool is_avtive) 
-{
+void check_battery_and_blink(bool is_avtive) {
     static unsigned long last_check_time = 0;
     static unsigned long last_battery_blink = 0;
     static bool battery_blink_state = false;
